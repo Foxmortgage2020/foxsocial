@@ -1,5 +1,5 @@
 # FoxSocial — Claude Code Build Context
-## Last Updated: April 11, 2026
+## Last Updated: April 11, 2026 (Content OS product context added)
 
 ---
 
@@ -256,3 +256,186 @@ All plans include a one-time **$150 onboarding fee**. Beta pricing is locked for
 - **Never add realtor/investor/FP portal routes** — those live in the foxmortgage-ca repo only
 - **Never add a database** — signups go through the API route to external services (Resend, Zoho)
 - **Never reference `$env` variables** — there are none; this is a static marketing site with one API route
+
+---
+
+## Content OS — The Product FoxSocial Sells
+
+FoxSocial is the marketing site. **Content OS** is the product. When a beta client signs up via FoxSocial, they are onboarded into the Content OS platform at `app.foxmortgage.ca`.
+
+### Product Repo
+
+| Field | Value |
+|---|---|
+| Repo | Foxmortgage2020/app |
+| Stack | Next.js 16.1.4, TypeScript, Tailwind CSS 4 |
+| Auth | Clerk v7 (separate instance from foxmortgage.ca) |
+| Database | Supabase (`agent_profiles` table) |
+| Live URL | https://app.foxmortgage.ca |
+
+### Sign-In Flow
+
+- URL: `https://app.foxmortgage.ca/sign-in`
+- File: `app/sign-in/[[...sign-in]]/page.tsx`
+- After sign-in redirects to: `/dashboard`
+- Left panel styled with FoxSocial brand (orange `#FF6B2B`, fox logo, "Your content. On autopilot.")
+- All FoxSocial "Sign in" nav links point here
+- Non-admin users without completed onboarding are redirected to `/onboarding`
+
+---
+
+## n8n Automation Stack
+
+| Field | Value |
+|---|---|
+| Instance | https://foxmortgage.app.n8n.cloud |
+| Active workflows | 43 |
+| Plan | n8n Cloud Starter (2,500 executions/mo) |
+
+### What the 43 workflows do
+
+- **Content research:** Apify web scraping, YouTube Data API, OpenRouter (Claude) for scoring and summarization
+- **Script + caption generation:** OpenRouter → Claude generates LinkedIn posts, Instagram captions, video scripts, carousel copy, hashtags
+- **Carousel image generation:** fal.ai FLUX Pro v1.1 model → Creatomate template rendering → Metricool draft
+- **Video pipeline:** Script → ElevenLabs voice clone → HeyGen avatar render → Creatomate caption overlay → Metricool draft
+- **Social scheduling:** Metricool API for LinkedIn, Instagram, TikTok, Facebook, YouTube
+- **Ingestion:** 4 nightly scheduled workflows (YouTube, News, Podcasts, Google Search) pulling content sources per agent
+- **Mortgage-specific:** Finmo application → Zoho CRM Deals, Lender Notes via Anthropic API
+- **Daily briefings:** Podcast briefing (ElevenLabs + Resend), Daily alerts (Resend)
+
+---
+
+## Video Workflow — Client Onboarding Context
+
+The video pipeline is **hybrid** — not fully automated. This is critical for setting client expectations during onboarding.
+
+| Step | Who | Time | What happens |
+|---|---|---|---|
+| 1. Script generation | Automated | — | n8n generates script + caption + hashtags via OpenRouter |
+| 2. Metricool draft | Automated | — | Caption pre-filled in Metricool scheduled post |
+| 3. Script email | Automated | — | Script emailed to client via Resend |
+| 4. Voice generation | **Client** | ~2 min | Client pastes script into their ElevenLabs account → voice clone generates audio |
+| 5. Video render | **Client** | ~5 min | Client uploads audio to their HeyGen account → avatar renders video |
+| 6. Upload to draft | **Client** | ~3 min | Client opens Metricool draft link from email → uploads rendered video |
+| 7. Publish | Automated | — | Metricool schedules and publishes |
+
+**Cost to you per video post:** ~$0.05 (OpenRouter script generation only)
+**HeyGen and ElevenLabs accounts are owned by the client** — not by FoxSocial.
+
+---
+
+## Image Generation
+
+| Field | Value |
+|---|---|
+| Tool | fal.ai |
+| Model | `fal-ai/flux-pro/v1.1` (upgraded from `flux/schnell` on April 11, 2026) |
+| Endpoint | `https://fal.run/fal-ai/flux-pro/v1.1` |
+| Cost | ~$0.03 per image |
+| Credential | `Fal.ai` Header Auth in n8n (ID: `j7EoF2aZL2WjfU5E`) |
+
+**Why FLUX Pro:** FLUX Schnell silently ignores the `negative_prompt` parameter, causing text to appear in generated background images. FLUX Pro has significantly better prompt adherence and does not support `negative_prompt` either — but follows positive prompt instructions like "no text, no words, no letters" much more reliably.
+
+---
+
+## Core Tools and Costs (Monthly — Your Cost)
+
+| Service | Cost | Notes |
+|---|---|---|
+| Vercel Pro | $20/mo | Hosts foxmortgage.ca + app.foxmortgage.ca + foxsocial.ca |
+| n8n Cloud Starter | $24/mo | 2,500 executions/mo — watch this cap |
+| Creatomate Essential | $54/mo | 2,000 credits — carousels + video caption overlay |
+| Metricool Advanced | $53/mo | 15 brands included (= 15 beta clients max) |
+| Resend | $0 | Free tier — transactional emails |
+| Clerk | $0 | Free tier — under 50K MRUs |
+| OpenRouter | ~$30-80/mo | Pay-as-you-go, varies with volume |
+| fal.ai | ~$0.03/image | Pay-as-you-go |
+| Anthropic API | Pay-as-you-go | Lender Notes workflow + Paperclip agents |
+| HeyGen | $0 (client-owned) | Each client has their own account |
+| ElevenLabs | $0 (client-owned) | Each client has their own account |
+
+### Infrastructure Upgrade Thresholds
+
+| Clients | What needs upgrading | Cost impact |
+|---|---|---|
+| 15 clients | Metricool brand limit reached | Upgrade to custom plan |
+| 15 clients | n8n execution cap likely hit | Upgrade to Pro ($60/mo) |
+| 40 clients | Creatomate credit cap | Upgrade to Growth ($99/mo) |
+| 50 clients | n8n Pro cap | Upgrade to Business ($800/mo — plan ahead) |
+
+---
+
+## Zoho Ecosystem (Content OS Data Layer)
+
+| Service | Purpose | Used in |
+|---|---|---|
+| Zoho Creator | Primary content database — forms, reports, workflows | 37 of 43 n8n workflows |
+| Zoho CRM | Mortgage deal/client management (Deals module) | 4 workflows |
+| Zoho WorkDrive | File storage for audio, PDFs, renders | 7 workflows |
+| Org ID | `906105026` | — |
+| Account owner | `2802551ontarioinc` | — |
+| OAuth credential (n8n) | `260126-1257-AEST-Zoho` (ID: `a053GmNoQPrMyYAS`) | All Zoho API calls |
+
+---
+
+## Paperclip — AI Agent Platform
+
+| Field | Value |
+|---|---|
+| Runs at | `http://localhost:3100` (local only) |
+| LLM | Claude via Anthropic API |
+| Email routing | Agents → n8n webhook → Resend → `michael@app.foxmortgage.ca` |
+
+4 scheduled agents:
+- **CEO** — 6:00 AM daily
+- **CMO** — 7:00 AM daily
+- **CSM** — 9:00 AM daily
+- **Investor Relations** — 10:00 AM daily
+
+---
+
+## Client Onboarding Requirements
+
+Before activating a client's Content OS account:
+
+1. Client must have their own **ElevenLabs account** with voice clone trained
+2. Client must have their own **HeyGen account** with avatar created
+3. Add client as a **brand in Metricool** (Advanced plan — 15 brands max)
+4. Configure their **content profile in Zoho Creator** (sources, prompts, Agent_ID)
+5. Charge **$150 one-time onboarding fee** before activating
+6. Client completes 5-step onboarding wizard at `app.foxmortgage.ca/onboarding`
+
+---
+
+## FoxSocial Beta Pricing (What Clients Pay)
+
+| Plan | Beta | Full | Platforms | Posts/mo | Carousels/mo | Video drafts/mo |
+|---|---|---|---|---|---|---|
+| Solo | $40/mo | $97/mo | LinkedIn only | 8-10 | 2 | — |
+| Starter | $75/mo | $175/mo | 2 platforms | 16-20 | 4 | 2 |
+| Growth | $120/mo | $297/mo | 3 platforms | 24-32 | 6 | 4 |
+| Scale | $150/mo | $397/mo | All + YouTube | 32-40 | 8 | 6 |
+
+**All plans:** $150 one-time onboarding fee. Beta pricing locked for life.
+**Beta cap:** 15 clients (limited by Metricool brand slots on Advanced plan).
+
+### Platform Add-On Pricing (After Base Plan)
+
+| Platform | Beta Add-On | Setup Fee |
+|---|---|---|
+| + Instagram | +$35/mo | +$50 |
+| + TikTok | +$45/mo | +$50 |
+| + YouTube | +$30/mo | +$50 (ingestion/research only) |
+
+---
+
+## What Happens After a Beta Signup
+
+When someone submits the beta form at foxsocial.ca:
+
+1. **Now:** Signup logged to console + saved to `data/signups.json` (local only)
+2. **TODO:** Resend notification email to `michael@app.foxmortgage.ca`
+3. **TODO:** Lead captured in Zoho CRM via n8n webhook
+4. **Manual:** Follow-up to book onboarding call
+5. **Manual:** Collect $150 setup fee
+6. **Manual:** Begin client onboarding checklist (ElevenLabs, HeyGen, Metricool, Zoho, Content OS wizard)
