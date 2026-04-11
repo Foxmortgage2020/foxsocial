@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import FadeUp from "./FadeUp";
 
 const plans = [
@@ -7,6 +10,8 @@ const plans = [
     full: "$97",
     platforms: "LinkedIn only",
     featured: false,
+    priceEnvKey: "solo",
+    planLabel: "Solo Beta",
     features: [
       "8\u201310 posts/mo",
       "2 carousels/mo",
@@ -20,6 +25,8 @@ const plans = [
     full: "$175",
     platforms: "2 platforms",
     featured: false,
+    priceEnvKey: "starter",
+    planLabel: "Starter Beta",
     features: [
       "16\u201320 posts/mo",
       "4 carousels/mo",
@@ -33,6 +40,8 @@ const plans = [
     full: "$297",
     platforms: "3 platforms",
     featured: true,
+    priceEnvKey: "growth",
+    planLabel: "Growth Beta",
     features: [
       "24\u201332 posts/mo",
       "6 carousels/mo",
@@ -46,6 +55,8 @@ const plans = [
     full: "$397",
     platforms: "All platforms + YouTube",
     featured: false,
+    priceEnvKey: null, // No Stripe price ID — contact form only
+    planLabel: "Scale Beta",
     features: [
       "32\u201340 posts/mo",
       "8 carousels/mo",
@@ -55,7 +66,40 @@ const plans = [
   },
 ];
 
+// Map plan keys to env var price IDs (set server-side, passed to checkout API)
+const PRICE_IDS: Record<string, string> = {
+  solo: "price_1TLA9jJDc6IlYEtZgZtkMCBK",
+  starter: "price_1TLAAwJDc6IlYEtZxbBJVQEV",
+  growth: "price_1TLABkJDc6IlYEtZnctFbNCZ",
+};
+
 export default function Pricing() {
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  async function handleCheckout(priceEnvKey: string, planLabel: string) {
+    const priceId = PRICE_IDS[priceEnvKey];
+    if (!priceId) return;
+
+    setLoadingPlan(priceEnvKey);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId, planName: planLabel }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Checkout error:", data.error);
+        setLoadingPlan(null);
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setLoadingPlan(null);
+    }
+  }
+
   return (
     <section id="pricing" className="py-24 px-5 bg-brand-dark">
       <div className="max-w-6xl mx-auto">
@@ -127,16 +171,39 @@ export default function Pricing() {
                   ))}
                 </ul>
 
-                <a
-                  href="#beta"
-                  className={`block text-center font-semibold text-sm py-3 rounded-lg transition-colors ${
-                    plan.featured
-                      ? "bg-brand-orange text-white hover:bg-brand-orange-hover"
-                      : "border border-brand-border text-brand-white hover:border-brand-orange/40 hover:text-brand-orange"
-                  }`}
-                >
-                  Get started
-                </a>
+                {/* CTA: Checkout button or contact link */}
+                <div className="space-y-2">
+                  {plan.priceEnvKey ? (
+                    <button
+                      onClick={() =>
+                        handleCheckout(plan.priceEnvKey!, plan.planLabel)
+                      }
+                      disabled={loadingPlan === plan.priceEnvKey}
+                      className={`block w-full text-center font-semibold text-sm py-3 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
+                        plan.featured
+                          ? "bg-brand-orange text-white hover:bg-brand-orange-hover"
+                          : "border border-brand-border text-brand-white hover:border-brand-orange/40 hover:text-brand-orange"
+                      }`}
+                    >
+                      {loadingPlan === plan.priceEnvKey
+                        ? "Redirecting..."
+                        : "Get started"}
+                    </button>
+                  ) : (
+                    <a
+                      href="#beta"
+                      className="block w-full text-center font-semibold text-sm py-3 rounded-lg transition-colors border border-brand-border text-brand-white hover:border-brand-orange/40 hover:text-brand-orange"
+                    >
+                      Contact us
+                    </a>
+                  )}
+                  <a
+                    href="#beta"
+                    className="block text-center text-xs text-brand-muted hover:text-brand-orange transition-colors"
+                  >
+                    or contact us first &rarr;
+                  </a>
+                </div>
               </div>
             </FadeUp>
           ))}
