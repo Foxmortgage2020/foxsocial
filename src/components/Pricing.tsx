@@ -156,7 +156,10 @@ export default function Pricing() {
       }
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        console.log("Redirecting to Stripe:", data.url);
+        // Don't reset loading state — let the browser navigate away
+        window.location.replace(data.url);
+        return;
       } else {
         console.error("No checkout URL returned:", data);
         setCheckoutError(data.error || "Checkout failed. Please try again.");
@@ -164,9 +167,8 @@ export default function Pricing() {
     } catch (err) {
       console.error("Checkout failed:", err);
       setCheckoutError("Network error. Please check your connection and try again.");
-    } finally {
-      setLoadingPlan(null);
     }
+    setLoadingPlan(null);
   }
 
   return (
