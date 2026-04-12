@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
                 Access to FoxSocial requires a paid monthly subscription. All subscription fees are billed in Canadian Dollars (CAD) on a recurring monthly basis and are processed securely through Stripe. Your subscription will automatically renew at the end of each billing cycle unless you cancel prior to the renewal date.
               </p>
               <p className="text-sm text-[#080A0F]/70 leading-relaxed mb-3">
-                A one-time onboarding fee of $150 CAD is charged on your first invoice. This fee covers your complete account setup, including Metricool brand configuration, Content OS activation, content profile setup, n8n workflow configuration, and your activation call with our team. The onboarding fee is non-refundable.
+                A one-time onboarding fee of $147 CAD is charged on your first invoice. This fee covers your complete account setup, including Metricool brand configuration, Content OS activation, content profile setup, n8n workflow configuration, and your activation call with our team. The onboarding fee is non-refundable.
               </p>
               <p className="text-sm text-[#080A0F]/70 leading-relaxed mb-3">
                 Beta pricing is available to founding subscribers and is locked for the lifetime of your continuous subscription. If you cancel and later resubscribe, beta pricing is no longer guaranteed and current published rates will apply.

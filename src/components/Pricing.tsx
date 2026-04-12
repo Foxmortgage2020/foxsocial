@@ -303,13 +303,13 @@ export default function Pricing() {
 
                   {/* Beta badge + comparison price */}
                   {isBeta ? (
-                    <div className="flex items-center gap-2 mb-5">
-                      <span className="text-[10px] font-bold bg-brand-orange/20 text-brand-orange px-2 py-0.5 rounded-full">
+                    <div className="mb-5 space-y-1.5">
+                      <span className="inline-block text-[10px] font-bold bg-brand-orange/20 text-brand-orange px-2 py-0.5 rounded-full">
                         Beta price
                       </span>
-                      <span className="text-xs text-brand-muted line-through">
+                      <p className="text-xs text-brand-muted line-through">
                         Full price ${otherDisplay}/mo
-                      </span>
+                      </p>
                     </div>
                   ) : (
                     <div className="mb-5" />

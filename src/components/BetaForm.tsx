@@ -147,7 +147,7 @@ export default function BetaForm() {
               )}
 
               <p className="text-[11px] text-brand-muted text-center">
-                One-time $150 setup fee. No lock-in. Cancel anytime during beta.
+                One-time $147 setup fee. No lock-in. Cancel anytime during beta.
               </p>
             </form>
           </FadeUp>

@@ -143,7 +143,7 @@ All sections live in `src/app/page.tsx` as composed components. Anchor IDs: `#ho
 - 4 plan cards side by side (see Pricing section below)
 - Growth plan: orange border + "Most popular" badge
 - All CTA buttons scroll to `#beta`
-- Footer note: "$150 onboarding fee. Beta pricing locked for life."
+- Footer note: "$147 onboarding fee. Beta pricing locked for life."
 
 ### 8. Beta Signup Form (`BetaForm.tsx`, `id="beta"`)
 - Dark `#080A0F` background, centered max 600px
@@ -172,7 +172,7 @@ All sections live in `src/app/page.tsx` as composed components. Anchor IDs: `#ho
 | Growth | $120/mo | $297/mo | 3 platforms | Yes (orange border + badge) |
 | Scale | $150/mo | $397/mo | All platforms + YouTube | No |
 
-All plans include a one-time **$150 onboarding fee**. Beta pricing is locked for the lifetime of the account.
+All plans include a one-time **$147 onboarding fee**. Beta pricing is locked for the lifetime of the account.
 
 ---
 
@@ -402,7 +402,7 @@ Before activating a client's Content OS account:
 2. Client must have their own **HeyGen account** with avatar created
 3. Add client as a **brand in Metricool** (Advanced plan — 15 brands max)
 4. Configure their **content profile in Zoho Creator** (sources, prompts, Agent_ID)
-5. Charge **$150 one-time onboarding fee** before activating
+5. Charge **$147 one-time onboarding fee** before activating
 6. Client completes 5-step onboarding wizard at `app.foxmortgage.ca/onboarding`
 
 ---
@@ -416,7 +416,7 @@ Before activating a client's Content OS account:
 | Growth | $120/mo | $297/mo | 3 platforms | 24-32 | 6 | 4 |
 | Scale | $150/mo | $397/mo | All + YouTube | 32-40 | 8 | 6 |
 
-**All plans:** $150 one-time onboarding fee. Beta pricing locked for life.
+**All plans:** $147 one-time onboarding fee. Beta pricing locked for life.
 **Beta cap:** 15 clients (limited by Metricool brand slots on Advanced plan).
 
 ### Platform Add-On Pricing (After Base Plan)
@@ -437,5 +437,5 @@ When someone submits the beta form at foxsocial.ca:
 2. **TODO:** Resend notification email to `michael@app.foxmortgage.ca`
 3. **TODO:** Lead captured in Zoho CRM via n8n webhook
 4. **Manual:** Follow-up to book onboarding call
-5. **Manual:** Collect $150 setup fee
+5. **Manual:** Collect $147 setup fee
 6. **Manual:** Begin client onboarding checklist (ElevenLabs, HeyGen, Metricool, Zoho, Content OS wizard)

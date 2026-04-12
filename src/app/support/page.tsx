@@ -23,7 +23,7 @@ const faqs = [
     a: "You can cancel at any time by emailing michael@app.foxmortgage.ca. Your subscription will remain active until the end of your current billing period. No lock-in contracts.",
   },
   {
-    q: "What is the $150 onboarding fee for?",
+    q: "What is the $147 onboarding fee for?",
     a: "The one-time onboarding fee covers your complete account setup including Metricool brand configuration, Content OS activation, content profile setup, n8n workflow configuration, and your 30-minute activation call with Michael.",
   },
   {
