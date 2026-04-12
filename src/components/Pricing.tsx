@@ -130,27 +130,41 @@ export default function Pricing() {
   const growthAnnualPerMonth = PRICES.growth[tier].annual;
   const annualSavings = (growthMonthly - growthAnnualPerMonth) * 12;
 
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
   async function handleCheckout(planKey: string, quantity: number = 1) {
     const priceId = PRICE_IDS[planKey]?.[tier]?.[period];
-    if (!priceId) return;
+    if (!priceId) {
+      console.error("No price ID found for", planKey, tier, period);
+      return;
+    }
     const planLabel = `${plans.find((p) => p.key === planKey)?.name || planKey} ${isBeta ? "Beta" : ""} ${isAnnual ? "Annual" : "Monthly"}`.trim();
 
     setLoadingPlan(planKey);
+    setCheckoutError(null);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ priceId, planName: planLabel, quantity }),
       });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Checkout API error:", res.status, errText);
+        setCheckoutError("Something went wrong. Please try again or contact us.");
+        return;
+      }
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error("Checkout error:", data.error);
-        setLoadingPlan(null);
+        console.error("No checkout URL returned:", data);
+        setCheckoutError(data.error || "Checkout failed. Please try again.");
       }
     } catch (err) {
-      console.error("Checkout error:", err);
+      console.error("Checkout failed:", err);
+      setCheckoutError("Network error. Please check your connection and try again.");
+    } finally {
       setLoadingPlan(null);
     }
   }
@@ -224,6 +238,11 @@ export default function Pricing() {
               </button>
             </div>
           </div>
+
+          {/* Checkout error message */}
+          {checkoutError && (
+            <p className="text-center text-sm text-red-400 mt-4">{checkoutError}</p>
+          )}
         </FadeUp>
 
         {/* Annual savings banner */}

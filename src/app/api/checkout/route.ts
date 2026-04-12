@@ -17,8 +17,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("STRIPE_SECRET_KEY is not set");
+      return NextResponse.json(
+        { error: "Payment system not configured. Please contact support." },
+        { status: 500 }
+      );
+    }
+
     const onboardingPriceId = process.env.STRIPE_PRICE_ONBOARDING_FEE;
     if (!onboardingPriceId) {
+      console.error("STRIPE_PRICE_ONBOARDING_FEE is not set");
       return NextResponse.json(
         { error: "Onboarding fee price not configured" },
         { status: 500 }
