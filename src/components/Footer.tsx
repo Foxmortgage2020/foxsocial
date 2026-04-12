@@ -17,13 +17,13 @@ export default function Footer() {
             </div>
           </div>
           <div className="flex gap-6 text-sm text-brand-muted">
-            <a href="#" className="hover:text-brand-white transition-colors">
+            <a href="/privacy" className="hover:text-brand-white transition-colors">
               Privacy
             </a>
-            <a href="#" className="hover:text-brand-white transition-colors">
+            <a href="/terms" className="hover:text-brand-white transition-colors">
               Terms
             </a>
-            <a href="#" className="hover:text-brand-white transition-colors">
+            <a href="/support" className="hover:text-brand-white transition-colors">
               Contact
             </a>
           </div>
