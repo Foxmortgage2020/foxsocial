@@ -8,7 +8,7 @@ function getStripe() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { priceId, planName } = body;
+    const { priceId, planName, quantity = 1 } = body;
 
     if (!priceId || !planName) {
       return NextResponse.json(
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       mode: "subscription",
       currency: "cad",
       line_items: [
-        { price: priceId, quantity: 1 },
+        { price: priceId, quantity: Number(quantity) || 1 },
         { price: onboardingPriceId, quantity: 1 },
       ],
       allow_promotion_codes: true,
