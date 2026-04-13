@@ -8,6 +8,8 @@ function getStripe() {
 const PROVISION_URL = "https://app.foxmortgage.ca/api/internal/provision-subscriber";
 
 export async function POST(req: NextRequest) {
+  console.log("stripe webhook: POST received at", new Date().toISOString());
+
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
 
@@ -57,8 +59,11 @@ export async function POST(req: NextRequest) {
         }),
       });
 
-      const result = await res.json();
-      console.log("stripe webhook: provision result:", result);
+      const resultText = await res.text();
+      console.log("stripe webhook: provision response:", res.status, resultText);
+      if (!res.ok) {
+        console.error("stripe webhook: provision failed with status", res.status);
+      }
     } catch (provisionError) {
       console.error("stripe webhook: provision call failed:", provisionError);
     }
