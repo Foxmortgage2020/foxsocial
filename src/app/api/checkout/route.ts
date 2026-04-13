@@ -34,6 +34,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log("Checkout request:", {
+      priceId,
+      planName,
+      quantity,
+      onboardingPriceId,
+      stripeKeyPrefix: process.env.STRIPE_SECRET_KEY?.substring(0, 10),
+    });
+
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",

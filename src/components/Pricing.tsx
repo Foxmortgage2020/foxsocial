@@ -6,7 +6,7 @@ import FadeUp from "./FadeUp";
 /* ── Price ID map: [plan][tier][period] ── */
 const PRICE_IDS: Record<string, Record<string, Record<string, string>>> = {
   essential: {
-    beta:    { monthly: "price_1TLA9jJDc6IlYEtZgZtkMCBK", annual: "price_1TLTfFJDc6IlYEtZRDku3io8" },
+    beta:    { monthly: "price_1TLYnaJRP6dpFr39IxuAwXTe", annual: "price_1TLTfFJDc6IlYEtZRDku3io8" },
     regular: { monthly: "price_1TLSETJDc6IlYEtZFulWIB6M", annual: "price_1TLTSCJDc6IlYEtZZ4SFdWzm" },
   },
   growth: {
@@ -140,6 +140,8 @@ export default function Pricing() {
     }
     const planLabel = `${plans.find((p) => p.key === planKey)?.name || planKey} ${isBeta ? "Beta" : ""} ${isAnnual ? "Annual" : "Monthly"}`.trim();
 
+    console.log("Checkout:", { planKey, tier, period, priceId, planLabel, quantity });
+
     setLoadingPlan(planKey);
     setCheckoutError(null);
     try {
@@ -156,10 +158,7 @@ export default function Pricing() {
       }
       const data = await res.json();
       if (data.url) {
-        console.log("Redirecting to Stripe:", data.url);
-        // Don't reset loading state — let the browser navigate away
-        window.location.replace(data.url);
-        return;
+        window.location.href = data.url;
       } else {
         console.error("No checkout URL returned:", data);
         setCheckoutError(data.error || "Checkout failed. Please try again.");
@@ -167,8 +166,9 @@ export default function Pricing() {
     } catch (err) {
       console.error("Checkout failed:", err);
       setCheckoutError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoadingPlan(null);
     }
-    setLoadingPlan(null);
   }
 
   return (
