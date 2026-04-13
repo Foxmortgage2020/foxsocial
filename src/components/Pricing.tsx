@@ -3,26 +3,6 @@
 import { useState } from "react";
 import FadeUp from "./FadeUp";
 
-/* ── Price ID map: [plan][tier][period] ── */
-const PRICE_IDS: Record<string, Record<string, Record<string, string>>> = {
-  essential: {
-    beta:    { monthly: "price_1TLYnaJRP6dpFr39IxuAwXTe", annual: "price_1TLTfFJDc6IlYEtZRDku3io8" },
-    regular: { monthly: "price_1TLSETJDc6IlYEtZFulWIB6M", annual: "price_1TLTSCJDc6IlYEtZZ4SFdWzm" },
-  },
-  growth: {
-    beta:    { monthly: "price_1TLABkJDc6IlYEtZnctFbNCZ", annual: "price_1TLTUxJDc6IlYEtZ954H4LFR" },
-    regular: { monthly: "price_1TLTVJJDc6IlYEtZz2vlE2Rm", annual: "price_1TLTVpJDc6IlYEtZhOmKdCg9" },
-  },
-  signature: {
-    beta:    { monthly: "price_1TLTblJDc6IlYEtZzdn6Yoj3", annual: "price_1TLTcGJDc6IlYEtZgCArQsf1" },
-    regular: { monthly: "price_1TLTcaJDc6IlYEtZpj1cvRT5", annual: "price_1TLTcxJDc6IlYEtZpFCV1REF" },
-  },
-  enterprise: {
-    beta:    { monthly: "price_1TLTeWJDc6IlYEtZvdtXFaiZ", annual: "price_1TLTfFJDc6IlYEtZRDku3io8" },
-    regular: { monthly: "price_1TLTeqJDc6IlYEtZfxxRbFJm", annual: "price_1TLTfeJDc6IlYEtZCaMjvFsO" },
-  },
-};
-
 /* ── Pricing amounts ── */
 interface PriceSet { monthly: number; annual: number; annualTotal: number; }
 const PRICES: Record<string, Record<string, PriceSet>> = {
@@ -133,14 +113,7 @@ export default function Pricing() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   async function handleCheckout(planKey: string, quantity: number = 1) {
-    const priceId = PRICE_IDS[planKey]?.[tier]?.[period];
-    if (!priceId) {
-      console.error("No price ID found for", planKey, tier, period);
-      return;
-    }
     const planLabel = `${plans.find((p) => p.key === planKey)?.name || planKey} ${isBeta ? "Beta" : ""} ${isAnnual ? "Annual" : "Monthly"}`.trim();
-
-    console.log("Checkout:", { planKey, tier, period, priceId, planLabel, quantity });
 
     setLoadingPlan(planKey);
     setCheckoutError(null);
@@ -148,17 +121,26 @@ export default function Pricing() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId, planName: planLabel, quantity }),
+        body: JSON.stringify({
+          planKey,
+          tier,
+          period,
+          planName: planLabel,
+          quantity,
+        }),
       });
       if (!res.ok) {
-        const errText = await res.text();
-        console.error("Checkout API error:", res.status, errText);
-        setCheckoutError("Something went wrong. Please try again or contact us.");
+        const errData = await res.json().catch(() => ({ error: "Unknown error" }));
+        console.error("Checkout API error:", res.status, errData);
+        setCheckoutError(errData.error || "Something went wrong. Please try again or contact us.");
+        setLoadingPlan(null);
         return;
       }
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        console.log("Redirecting to Stripe:", data.url);
+        window.location.replace(data.url);
+        return;
       } else {
         console.error("No checkout URL returned:", data);
         setCheckoutError(data.error || "Checkout failed. Please try again.");
@@ -166,9 +148,8 @@ export default function Pricing() {
     } catch (err) {
       console.error("Checkout failed:", err);
       setCheckoutError("Network error. Please check your connection and try again.");
-    } finally {
-      setLoadingPlan(null);
     }
+    setLoadingPlan(null);
   }
 
   return (
