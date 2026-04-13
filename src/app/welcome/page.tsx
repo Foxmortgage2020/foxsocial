@@ -66,24 +66,24 @@ function WelcomeContent() {
             <Step
               num="1"
               title="Check your email"
-              desc="Login credentials are on their way."
+              desc="Click the activation link to set your password and complete your 5-minute profile setup."
             />
             <Step
               num="2"
-              title="Set up ElevenLabs"
-              desc="Create your voice clone (5 min)"
+              title="Complete your profile"
+              desc="Tell us about your business, audience, and content style — then your content engine starts immediately."
             />
             <Step
               num="3"
-              title="Set up HeyGen"
-              desc="Create your video avatar (10 min)"
+              title="Set up ElevenLabs + HeyGen"
+              desc="Create your voice clone and video avatar (you can do this later too)."
             />
           </div>
         </div>
 
         <p className="text-sm text-[#080A0F]/50 mb-8">
-          We&apos;ll reach out within 24 hours to schedule your activation call
-          and get your first content live.
+          Your activation email is from <strong>hello@foxsocial.ca</strong>.
+          Check your spam folder if you don&apos;t see it within a few minutes.
         </p>
 
         <a
