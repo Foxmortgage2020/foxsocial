@@ -236,3 +236,57 @@ INTERNAL_PROVISION_SECRET=<shared with app repo>
 - **Never add Clerk or any auth** to this repo — it is a public marketing site only
 - **Never use Fox Mortgage green (`#95D600`) or navy (`#032133`)**
 - **Never add a database** — signups and payments go through API routes to external services
+
+---
+
+## Session Update — April 12, 2026 (Evening)
+
+### Pricing Page Rebuilt
+4 plans: Essential, Growth, Signature, Enterprise. Monthly/Annual toggle (20% annual discount). Beta/Regular pricing toggle (default: Beta). Enterprise seat selector (3–10 seats, dynamic pricing). All price IDs moved server-side — zero hardcoded price IDs in client code. `Pricing.tsx` sends `{ planKey, tier, period }` to `/api/checkout` which resolves price ID from env vars via `PRICE_MAP`.
+
+### Stripe Checkout Architecture
+- Client sends: `{ planKey, tier, period, planName, quantity }`
+- Server resolves price ID from `PRICE_MAP` env var lookup (16 combinations)
+- Checkout creates: subscription line item + $147 onboarding fee
+- On success: redirects to `/welcome?session_id=...`
+- Webhook: `https://www.foxsocial.ca/api/webhook/stripe`
+- **IMPORTANT:** Must use `www.foxsocial.ca` not `foxsocial.ca` — bare domain 308 redirects to `www` and Stripe won't follow.
+
+### Stripe Status
+- Account under review (2–3 days from April 12)
+- Currently using test mode keys
+- Test prices created for Essential Beta ($37) and Onboarding Fee ($147)
+- Live price IDs all created and in Vercel env vars
+- When review completes: swap `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` to live values
+
+### End-to-End Test — PASSED (April 12, 10:06 PM)
+Test subscriber "Wayne Gretzky" (`hello@foxsocial.ca`):
+- Stripe Checkout completed ✅
+- Welcome page rendered with name + plan ✅
+- Welcome email from `hello@foxsocial.ca` ✅
+- Admin notification to `mfox@foxmortgage.ca` ✅
+- Clerk user created automatically ✅
+- Supabase `agent_profiles` row created ✅
+
+### Resend — foxsocial.ca Verified
+- Verified April 12, 2026 at 9:58 PM
+- SPF TXT, DKIM TXT, SPF MX all validated
+- From address: `hello@foxsocial.ca`
+- All system emails now send from `hello@foxsocial.ca`
+
+### Legal Pages Live
+- `/support` — FAQ accordion + contact form
+- `/privacy` — PIPEDA-compliant, 2802551 Ontario Inc.
+- `/terms` — Ontario governing law
+- All three submitted to Stripe for business review
+
+### DNS Confirmed
+- `foxsocial.ca`: A `@` → `76.76.21.21` ✅
+- `www.foxsocial.ca`: CNAME → `cname.vercel-dns.com` ✅
+- Resend: SPF, DKIM, MX records added ✅
+
+### Pending
+- [ ] Stripe business review → swap to live keys
+- [ ] `app.foxmortgage.ca` → `app.foxsocial.ca` migration
+- [ ] `hello@foxsocial.ca` email forwarding in GoDaddy
+- [ ] Wire beta form to Resend + Zoho CRM
